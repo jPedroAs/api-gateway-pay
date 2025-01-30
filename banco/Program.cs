@@ -5,9 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// builder.Services.AddDbContext<BlueBankContext>(options =>
+//     options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<BlueBankContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=root;Password=root"));
+
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Secret"]);
 builder.Services.AddAuthentication(x =>
