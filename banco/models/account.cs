@@ -1,11 +1,11 @@
 public class Account
 {
     public int Id { get; set; }
-    public string AccountNumber { get; set; } = "";
-    public decimal? Balance { get; set; } = null;
-    public decimal? SavingsBalance { get; set; } = null;
-    public int UserId { get; set; }
-    public User User { get; set; } = new User();
-    public int TransactionId { get; set;}
-    public List<Transaction> Transactions{ get; set; } = new List<Transaction>();
+    public string AccountNumber { get; set; } = string.Empty;
+    public decimal? Balance { get; set; } = 0;
+    public decimal? SavingsBalance { get; set; } = 0;
+    public int UserId { get; set; } = default;
+    public User User { get; set; }
+    public List<Transaction> Transactions{ get; set; }
+    public bool Active { get; set; } = default;
 }

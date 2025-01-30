@@ -1,15 +1,18 @@
 using System.Text;
+using banco.Services;
+using banco.TokenServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // builder.Services.AddDbContext<BlueBankContext>(options =>
 //     options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<BlueBankContext>(options =>
-    options.UseNpgsql("Host=localhost;Port=5432;Database=postgres;Username=root;Password=root"));
+    options.UseNpgsql(connectionString));
 
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Secret"]);
@@ -28,6 +31,14 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUser", policy =>
+        policy.Requirements.Add(new ActiveRequirement()));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, ActiveHandler>(); 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -39,12 +50,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<BlueBankContext>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<BlueBankContext>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<PasswordHash>();
+
 // builder.Services.AddTransient<TokenService>();
 
 
 var app = builder.Build();
 app.UseCors("AllowAllOrigins");
 app.MapControllers();
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

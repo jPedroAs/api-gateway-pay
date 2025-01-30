@@ -28,6 +28,11 @@ public class BlueBankContext : DbContext
                 .WithMany(a => a.Transactions) 
                 .HasForeignKey(t => t.AccountId) 
                 .OnDelete(DeleteBehavior.Cascade); 
+
+             entity.HasOne(t => t.Account) 
+                .WithMany(a => a.Transactions) 
+                .HasForeignKey(t => t.Account_transferred) 
+                .OnDelete(DeleteBehavior.Cascade); 
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -67,6 +72,11 @@ public class BlueBankContext : DbContext
             entity.HasMany(a => a.Transactions) 
                 .WithOne(t => t.Account) 
                 .HasForeignKey(t => t.AccountId) 
+                .OnDelete(DeleteBehavior.Cascade); 
+            
+            entity.HasMany(a => a.Transactions) 
+                .WithOne(t => t.Account) 
+                .HasForeignKey(t => t.Account_transferred) 
                 .OnDelete(DeleteBehavior.Cascade); 
         });
     }

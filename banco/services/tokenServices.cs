@@ -7,6 +7,7 @@ namespace banco.Services
 {
     public class TokenService
     {
+        
         private readonly IConfiguration _configuration;
         public TokenService(IConfiguration configuration)
         {
@@ -24,6 +25,8 @@ namespace banco.Services
                 new(ClaimTypes.Name, user),
                 new Claim("Id", account.Id.ToString()),
                 new Claim("Account", account.AccountNumber),
+                new Claim("Name", account.User.Username),
+                new Claim("active", account.Active == true ? "true": "false"),
                 }),
                 Expires = DateTime.UtcNow.AddHours(8),
                 SigningCredentials = new SigningCredentials(

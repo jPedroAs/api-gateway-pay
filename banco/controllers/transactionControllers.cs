@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Components.Web;
 using System.IdentityModel.Tokens.Jwt;
 using Sprache;
+using Microsoft.AspNetCore.Authorization;
 
 
 [ApiController]
-[Route("api/[controller]")]
+// [Route("api/[controller]")]
 public class TransactionController : ControllerBase
 {
     private readonly BlueBankContext _context;
@@ -18,99 +19,135 @@ public class TransactionController : ControllerBase
         _context = context;
     }
 
-    [HttpPost("deposito")]
+    [Authorize(Policy = "ActiveUser")]
+    [HttpPost("api/deposito")]
     public async Task<IActionResult> Deposit([FromBody] TransactionView model)
-    {
-        var transaction = new Transaction();
-        var account = await _context.AccountBaks.FindAsync(model.Cod);
-        if (account == null) 
-            return BadRequest("account not found");
-
-        account.Balance += model.Amount;
-        transaction.Amount = model.Amount;
-        transaction.Date = DateTime.Now;
-        transaction.Type = TransactionType.Deposit;
-        transaction.AccountId = account.Id;
-        _context.Transactions.Add(transaction);
-
-        await _context.SaveChangesAsync();
-        return Ok(account.Balance);
-    }
-
-    [HttpPost("transferencia")]
-    public async Task<IActionResult> Transaction([FromBody] TransactionView model)
     {
         try{
             var transaction = new Transaction();
+            var account = await _context.AccountBaks.FirstOrDefaultAsync(x => x.AccountNumber == model.Cod);
+            if (account == null) 
+                return BadRequest("account not found");
 
+            var valor =  account.Balance + model.Amount;
+            account.Balance = valor;
+
+            transaction.Amount = model.Amount;
+            transaction.Date = DateTime.UtcNow;
+            transaction.Type = TransactionType.Deposit;
+            transaction.AccountId = account.Id;
+            await _context.Transactions.AddAsync(transaction);
+            _context.AccountBaks.Update(account);
+
+            await _context.SaveChangesAsync();
+            return Ok(account.Balance);
+        }catch(Exception e){
+            return BadRequest(e);
+        }
+    }
+
+    [Authorize(Policy = "ActiveUser")]
+    [HttpPost("api/transferencia")]
+    public async Task<IActionResult> Transaction([FromBody] TransactionView model)
+    {
+        try{
+            if (model.Cod == null)
+                return BadRequest("É necessario informar o número da conta.");
+
+            var transaction = new Transaction();
+            var account = new Account();
+               
             if(model.Type == TransactionType.CashOut)
             {
-                if (model.Cod == null)
-                    return BadRequest("É necessario informar o número da conta.");
                 
-                var account = await _context.AccountBaks.FindAsync(model.Cod);
+                account = await _context.AccountBaks.FirstOrDefaultAsync(x=> x.AccountNumber == model.Cod);
                 if (account == null || account.Balance < model.Amount) 
-                    return BadRequest("not enough money");
+                    return BadRequest("Saldo insuficiente");
 
                 account.Balance -= model.Amount;
                 transaction.Amount = model.Amount;
-                transaction.Date = DateTime.Now;
+                transaction.Date = DateTime.UtcNow;
                 transaction.Type = TransactionType.CashOut;
                 transaction.AccountId = account.Id;
             }
-            else if (model.Type == TransactionType.Savings)
+            else if (model.Type == TransactionType.Transaction)
             {
                 
                 var token = Request.Headers["Authorization"].ToString();
-                var accountValue = GetToken(token);
+                var replace = token.Replace("Bearer", "").Trim();
+                var accountValue = GetToken(replace);
+                var ac = int.Parse(accountValue);
 
-                var account = await _context.AccountBaks.FindAsync(accountValue);
+                account = await _context.AccountBaks.FindAsync(ac);
+                if(account.AccountNumber == model.Cod)
+                    return BadRequest("Não é possível transferir para sua própria conta");
                 if (account == null || account.Balance < model.Amount) 
-                    return BadRequest("Insufficient funds");
+                    return BadRequest("Saldo insuficiente");
+
+                var account_transaction = await _context.AccountBaks.FirstOrDefaultAsync(x=> x.AccountNumber == model.Cod);
+                if(account_transaction == null )
+                    return NotFound("Conta não encontrada");
 
                 account.Balance -= model.Amount;
+                account_transaction.Balance += model.Amount;
+
                 transaction.Amount = model.Amount;
-                transaction.Date = DateTime.Now;
+                transaction.Date = DateTime.UtcNow;
                 transaction.Type = TransactionType.Savings;
                 transaction.AccountId = account.Id;
+                transaction.Account_transferred = account_transaction.Id;
+            }
+            else
+            {
+                return BadRequest("Apenas Type CashOut e Transaction ");
             }
 
-            _context.Transactions.Add(transaction);
+            await _context.Transactions.AddAsync(transaction);
+            _context.AccountBaks.Update(account);
+
             await _context.SaveChangesAsync();
-            return Ok("Transferência realizada");
+            return Ok(new { Balance = account.Balance });
         }
-        catch
+        catch(Exception e)
         {
-            return BadRequest("Acorreu um erro");
+            return BadRequest(e);
         }
     }
 
-    [HttpPost("transferToSavings")]
+    [Authorize(Policy = "ActiveUser")]
+    [HttpPost("api/transferToSavings")]
     public async Task<IActionResult> TransferToSavings([FromBody] TransactionView model)
     {
-        var transaction = new Transaction();
-        var account = await _context.AccountBaks.FindAsync(model.Cod);
-        if (account == null || account.Balance < model.Amount) 
-            return BadRequest("account not found");
+        try{
+            var transaction = new Transaction();
+            var account = await _context.AccountBaks.FirstOrDefaultAsync(x=> x.AccountNumber == model.Cod);
+            if (account == null || account.Balance < model.Amount) 
+                return BadRequest("Saldo insuficiente");
 
-        account.Balance -= model.Amount;
-        account.SavingsBalance += model.Amount;
+            account.Balance -= model.Amount;
+            account.SavingsBalance += model.Amount;
 
-        transaction.Amount = model.Amount;
-        transaction.Date = DateTime.Now;
-        transaction.Type = TransactionType.Savings;
-        transaction.AccountId = account.Id;
-        _context.Transactions.Add(transaction);
+            transaction.Amount = model.Amount;
+            transaction.Date = DateTime.UtcNow;
+            transaction.Type = TransactionType.Savings;
+            transaction.AccountId = account.Id;
+            await _context.Transactions.AddAsync(transaction);
+            _context.AccountBaks.Update(account);
 
-        await _context.SaveChangesAsync();
-        return Ok(account.SavingsBalance);
+            await _context.SaveChangesAsync();
+            return Ok(account.SavingsBalance);
+        }catch(Exception e){
+            return BadRequest(e);
+        }
     }
 
-    [HttpGet("history")]
+    [Authorize(Policy = "ActiveUser")]
+    [HttpGet("api/history")]
     public async Task<IActionResult> GetTransactionHistory()
     {
         var token = Request.Headers["Authorization"].ToString();
-        var accountValue = GetToken(token);
+        var replace = token.Replace("Bearer", "").Trim();
+        var accountValue = GetToken(replace);
         var account = int.Parse(accountValue);
 
         var transactions = await _context.Transactions.Where(x => x.AccountId == account).ToListAsync();
@@ -118,14 +155,14 @@ public class TransactionController : ControllerBase
     }
 
 
-    public string GetToken(string token)
+    public static string GetToken(string token)
     {
         var handler = new JwtSecurityTokenHandler();
         if (handler.CanReadToken(token))
         {
             var jwtToken = handler.ReadJwtToken(token);
             
-            var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == "Account")?.Value;
+            var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
             
             return claim ?? "Conta não encontrado.";
         }

@@ -2,5 +2,6 @@ public enum TransactionType
 {
     CashOut,
     Deposit,
-    Savings
+    Savings,
+    Transaction
 }

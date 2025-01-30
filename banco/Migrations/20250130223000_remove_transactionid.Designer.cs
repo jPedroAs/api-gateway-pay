@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace banco.Migrations
 {
     [DbContext(typeof(BlueBankContext))]
-    [Migration("20250128235543_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250130223000_remove_transactionid")]
+    partial class removetransactionid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,14 +37,14 @@ namespace banco.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal?>("Balance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("SavingsBalance")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");

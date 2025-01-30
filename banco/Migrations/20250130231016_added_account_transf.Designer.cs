@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace banco.Migrations
 {
     [DbContext(typeof(BlueBankContext))]
-    partial class BlueBankContextModelSnapshot : ModelSnapshot
+    [Migration("20250130231016_added_account_transf")]
+    partial class addedaccounttransf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,7 +81,7 @@ namespace banco.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Account_transferred");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("Transactions");
                 });
@@ -90,10 +93,6 @@ namespace banco.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -125,8 +124,9 @@ namespace banco.Migrations
                 {
                     b.HasOne("Account", "Account")
                         .WithMany("Transactions")
-                        .HasForeignKey("Account_transferred")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });

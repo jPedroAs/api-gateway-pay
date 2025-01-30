@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using banco.TokenServices;
 
 [ApiController]
-[Route("api/[controller]")]
+// [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly BlueBankContext _context;
@@ -20,7 +20,7 @@ public class AccountController : ControllerBase
 
     }
 
-    [HttpPost("register")]
+    [HttpPost("api/register")]
     public async Task<IActionResult> Register([FromBody] User model)
     {
        var transaction = _context.Database.BeginTransaction();
@@ -28,9 +28,10 @@ public class AccountController : ControllerBase
             var pass = _hash.HashPassword(model.Password);
             var user = new User{
                 Username = model.Username,
+                Email = model.Email,
                 Password = pass
             };
-            _context.Users.Add(user);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
             var generateGuid = Guid.NewGuid().ToString();
@@ -38,11 +39,11 @@ public class AccountController : ControllerBase
             var account = new Account
             {
                 AccountNumber = numberBank,
-                Balance = null,
-                SavingsBalance = null,
+                Balance = 0,
+                SavingsBalance = 0,
                 UserId = user.Id
             };
-            _context.AccountBaks.Add(account);
+            await _context.AccountBaks.AddAsync(account);
             await _context.SaveChangesAsync();
 
             transaction.Commit();
@@ -53,7 +54,7 @@ public class AccountController : ControllerBase
         }
     }
 
-    [HttpPost("login")]
+    [HttpPost("api/login")]
     public async Task<IActionResult> Login([FromBody] User model)
     {
          try{
