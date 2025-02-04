@@ -29,7 +29,7 @@ public class AccountController : ControllerBase
             var user = new User{
                 Username = model.Username,
                 Email = model.Email,
-                Password = pass
+                Password = pass,
             };
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -41,7 +41,8 @@ public class AccountController : ControllerBase
                 AccountNumber = numberBank,
                 Balance = 0,
                 SavingsBalance = 0,
-                UserId = user.Id
+                UserId = user.Id,
+                Active = true
             };
             await _context.AccountBaks.AddAsync(account);
             await _context.SaveChangesAsync();
@@ -58,7 +59,7 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Login([FromBody] User model)
     {
          try{
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
 
             if(user is null) return BadRequest("Usuário Não existe");
             

@@ -19,7 +19,7 @@ public class TransactionController : ControllerBase
         _context = context;
     }
 
-    [Authorize(Policy = "ActiveUser")]
+    // [Authorize(Policy = "ActiveUser")]
     [HttpPost("api/deposito")]
     public async Task<IActionResult> Deposit([FromBody] TransactionView model)
     {
@@ -93,7 +93,7 @@ public class TransactionController : ControllerBase
 
                 transaction.Amount = model.Amount;
                 transaction.Date = DateTime.UtcNow;
-                transaction.Type = TransactionType.Savings;
+                transaction.Type = TransactionType.Transaction;
                 transaction.AccountId = account.Id;
                 transaction.Account_transferred = account_transaction.Id;
             }
@@ -139,6 +139,19 @@ public class TransactionController : ControllerBase
         }catch(Exception e){
             return BadRequest(e);
         }
+    }
+
+    [Authorize(Policy = "ActiveUser")]
+    [HttpGet("api/balance")]
+    public async Task<IActionResult> GetBalance()
+    {
+        var token = Request.Headers["Authorization"].ToString();
+        var replace = token.Replace("Bearer", "").Trim();
+        var accountValue = GetToken(replace);
+        var account = int.Parse(accountValue);
+
+        var balance = await _context.AccountBaks.FirstOrDefaultAsync(x => x.Id == account);
+        return Ok(balance.Balance);
     }
 
     [Authorize(Policy = "ActiveUser")]
