@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("database");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // builder.Services.AddDbContext<BlueBankContext>(options =>
 //     options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<BlueBankContext>(options =>
