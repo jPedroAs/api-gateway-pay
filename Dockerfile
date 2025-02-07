@@ -29,7 +29,7 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Instala dotnet-ef na pasta local (não global)
-RUN dotnet tool install --tool-path /app/tools dotnet-ef --version 8.0
+RUN dotnet tool install --tool-path /app/tools dotnet-ef --version 8.0.0
 
 # Script de inicialização para rodar as migrações antes de iniciar o app
 COPY entrypoint.sh /app/entrypoint.sh
