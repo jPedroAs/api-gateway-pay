@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("Host=ep-long-heart-a438g6j0-pooler.us-east-1.aws.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_rJZ4nfNc2MQA;SSL Mode=Require;Trust Server Certificate=true");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<BlueBankContext>(options =>
     options.UseNpgsql(connectionString));

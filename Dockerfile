@@ -18,4 +18,4 @@ RUN dotnet publish "banco/banco.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "banco.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet banco.dll"]
