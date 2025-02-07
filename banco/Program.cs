@@ -9,8 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// builder.Services.AddDbContext<BlueBankContext>(options =>
-//     options.UseSqlServer(connectionString));
+
 builder.Services.AddDbContext<BlueBankContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -50,10 +49,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<BlueBankContext>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<BlueBankContext>();
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddTransient<TokenService>();
 builder.Services.AddScoped<PasswordHash>();
-
-// builder.Services.AddTransient<TokenService>();
 
 
 var app = builder.Build();
