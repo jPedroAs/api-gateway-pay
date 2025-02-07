@@ -11,9 +11,12 @@ WORKDIR /src
 COPY ["banco/banco.csproj", "banco/"]
 RUN dotnet restore "banco/banco.csproj"
 
-COPY . .
+COPY . . 
 WORKDIR /src/banco
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
+
+# Instala dotnet-ef na fase de build
+RUN dotnet tool install --tool-path /app/tools dotnet-ef --version 8.0.0
 
 # Etapa de Publicação
 FROM build AS publish
@@ -28,8 +31,8 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-# Instala dotnet-ef na pasta local (não global)
-RUN dotnet tool install --global dotnet-ef --version 8.0.0
+# Copia a ferramenta `dotnet-ef` instalada na fase de build
+COPY --from=build /app/tools /root/.dotnet/tools
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Script de inicialização para rodar as migrações antes de iniciar o app
