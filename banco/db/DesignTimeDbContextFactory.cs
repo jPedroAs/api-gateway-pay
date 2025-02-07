@@ -13,7 +13,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<BlueBankCo
         //     .Build();
 
         var optionsBuilder = new DbContextOptionsBuilder<BlueBankContext>();
-        optionsBuilder.UseSqlServer("postgresql://banco_gh05_user:M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ@dpg-cuj7ektumphs738bgfs0-a/banco_gh05");
+        optionsBuilder.UseNpgsql("postgresql://banco_gh05_user:M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ@dpg-cuj7ektumphs738bgfs0-a/banco_gh05");
 
         return new BlueBankContext(optionsBuilder.Options);
     }
