@@ -16,7 +16,6 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "banco/banco.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
-ENV PATH="$PATH:/root/.dotnet/tools"
 
 FROM base AS final
 WORKDIR /app
