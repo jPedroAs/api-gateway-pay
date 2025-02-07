@@ -7,13 +7,13 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<BlueBankCo
 {
     public BlueBankContext CreateDbContext(string[] args)
     {
-        var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .Build();
+        // var config = new ConfigurationBuilder()
+        //     .SetBasePath(Directory.GetCurrentDirectory())
+        //     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //     .Build();
 
         var optionsBuilder = new DbContextOptionsBuilder<BlueBankContext>();
-        optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+        optionsBuilder.UseSqlServer("postgresql://banco_gh05_user:M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ@dpg-cuj7ektumphs738bgfs0-a/banco_gh05");
 
         return new BlueBankContext(optionsBuilder.Options);
     }

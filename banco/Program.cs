@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("postgresql://banco_gh05_user:M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ@dpg-cuj7ektumphs738bgfs0-a/banco_gh05");
 
 builder.Services.AddDbContext<BlueBankContext>(options =>
     options.UseNpgsql(connectionString));
