@@ -16,7 +16,8 @@ WORKDIR /src/banco
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 # Instala dotnet-ef na fase de build
-RUN dotnet tool install --tool-path /app/tools dotnet-ef --version 8.0.0
+RUN dotnet tool install --global dotnet-ef --version 8.0.0
+ENV PATH="${PATH}:/root/.dotnet/tools"
 
 # Etapa de Publicação
 FROM build AS publish
@@ -31,9 +32,10 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-# Copia a ferramenta `dotnet-ef` instalada na fase de build
-COPY --from=build /app/tools /root/.dotnet/tools
-ENV PATH="$PATH:/root/.dotnet/tools"
+# Copia a instalação do dotnet-ef da fase build para a fase final
+COPY --from=build /root/.dotnet /root/.dotnet
+COPY --from=build /root/.nuget /root/.nuget
+ENV PATH="${PATH}:/root/.dotnet/tools"
 
 # Script de inicialização para rodar as migrações antes de iniciar o app
 COPY entrypoint.sh /app/entrypoint.sh

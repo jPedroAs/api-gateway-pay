@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
-
-# Executa as migrações antes de iniciar a aplicação
-/app/tools/dotnet-ef database update
-
-# Inicia a aplicação
+echo "Executando migrações..."
+dotnet ef database update
+echo "Iniciando aplicação..."
 exec dotnet banco.dll
