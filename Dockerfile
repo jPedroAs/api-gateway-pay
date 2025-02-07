@@ -15,9 +15,10 @@ COPY . .
 WORKDIR /src/banco
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
-# Instala dotnet-ef na fase de build
+# Instalar dotnet-ef e rodar migrações na fase de build
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
 ENV PATH="${PATH}:/root/.dotnet/tools"
+RUN dotnet ef database update  # Executa a migração na fase de build
 
 # Etapa de Publicação
 FROM build AS publish
@@ -32,14 +33,8 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-# Copia a instalação do dotnet-ef da fase build para a fase final
-COPY --from=build /root/.dotnet /root/.dotnet
-COPY --from=build /root/.nuget /root/.nuget
-ENV PATH="${PATH}:/root/.dotnet/tools"
-
-# Script de inicialização para rodar as migrações antes de iniciar o app
+# Script de inicialização
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Define o ponto de entrada
 ENTRYPOINT ["/app/entrypoint.sh"]
