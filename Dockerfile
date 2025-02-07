@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["banco/banco.csproj", "banco/"]
-RUN dotnet restore "./banco/banco.csproj"
+RUN dotnet restore "banco/banco.csproj"
 COPY . .
 
 RUN dotnet build "banco/banco.csproj" -c $BUILD_CONFIGURATION -o /app/build
