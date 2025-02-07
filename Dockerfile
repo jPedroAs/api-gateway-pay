@@ -37,4 +37,4 @@ COPY --from=publish /app/publish .
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-ENTRYPOINT dotnet ef database update && dotnet NomeDaSuaAPI.dll
+ENTRYPOINT dotnet ef database update && dotnet banco.dll
