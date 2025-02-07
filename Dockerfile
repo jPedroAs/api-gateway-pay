@@ -19,7 +19,6 @@ RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
 ENV PATH="${PATH}:/root/.dotnet/tools"
-RUN dotnet ef database update  # Executa a migração na fase de build
 
 # Etapa de Publicação
 FROM build AS publish
@@ -38,4 +37,4 @@ COPY --from=publish /app/publish .
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet banco.dll]
