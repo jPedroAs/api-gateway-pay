@@ -15,7 +15,8 @@ COPY . .
 WORKDIR /src/banco
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
-# Instalar dotnet-ef e rodar migrações na fase de build
+ENV ConnectionStrings__DefaultConnection="Host=dpg-cuj7ektumphs738bgfs0-a;Database=banco_gh05;Username=banco_gh05_user;Password=M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ;"
+
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
 ENV PATH="${PATH}:/root/.dotnet/tools"
 RUN dotnet ef database update  # Executa a migração na fase de build
