@@ -36,5 +36,5 @@ COPY --from=publish /app/publish .
 # Script de inicialização
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
-
+ENV PATH="${PATH}:/root/.dotnet/tools"
 ENTRYPOINT dotnet ef database update && dotnet banco.dll
