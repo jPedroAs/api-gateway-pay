@@ -22,7 +22,7 @@ RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
-
+ENV ConnectionStrings__DefaultConnection="Host=dpg-cuj7ektumphs738bgfs0-a;Port=5432;Database=banco_gh05;Username=banco_gh05_user;Password=M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ;SSL Mode=Require;Trust Server Certificate=True"
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "banco.dll"]
