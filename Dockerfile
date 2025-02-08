@@ -25,13 +25,7 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src/banco
 RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-
-FROM build AS final-sdk
-WORKDIR /app
-COPY --from=publish /app/publish .
-
-ENTRYPOINT ["dotnet", "ef", "database", "update"]
+RUN dotnet ef database update
 
 # Etapa Final (Runtime)
 FROM base AS final
