@@ -8,10 +8,10 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<BlueBankContext>(options =>
-    options.UseNpgsql("Host=dpg-cuj7ektumphs738bgfs0-a;Port=5432;Database=banco_gh05;Username=banco_gh05_user;Password=M99HADj2qIBjpePTPV9O3mNhYSFvYGSJ;SSL Mode=Require;Trust Server Certificate=True"));
+    options.UseNpgsql(connectionString));
 
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Secret"]);
