@@ -26,6 +26,13 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src/banco
 RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+
+FROM build AS final-sdk
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+ENTRYPOINT "dotnet ef database update
+
 # Etapa Final (Runtime)
 FROM base AS final
 WORKDIR /app
@@ -33,8 +40,5 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-# Script de inicialização
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 ENV PATH="${PATH}:/root/.dotnet/tools"
 ENTRYPOINT dotnet ef database update && dotnet banco.dll
