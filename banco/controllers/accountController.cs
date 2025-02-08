@@ -25,6 +25,10 @@ public class AccountController : ControllerBase
     {
        var transaction = _context.Database.BeginTransaction();
         try{
+            var verify = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+            if (verify != null)
+                return BadRequest("Usuário já registrado");  
+                 
             var pass = _hash.HashPassword(model.Password);
             var user = new User{
                 Username = model.Username,

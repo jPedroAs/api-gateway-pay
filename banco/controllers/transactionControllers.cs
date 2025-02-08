@@ -19,7 +19,7 @@ public class TransactionController : ControllerBase
         _context = context;
     }
 
-    // [Authorize(Policy = "ActiveUser")]
+    [Authorize(Policy = "ActiveUser")]
     [HttpPost("api/deposito")]
     public async Task<IActionResult> Deposit([FromBody] TransactionView model)
     {
