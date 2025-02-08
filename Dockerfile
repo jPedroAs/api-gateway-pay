@@ -15,23 +15,14 @@ COPY . .
 WORKDIR /src/banco
 RUN dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
-
-
+# Instala o dotnet-ef para rodar as migrações
 RUN dotnet tool install --global dotnet-ef --version 8.0.0
 ENV PATH="${PATH}:/root/.dotnet/tools"
 
 # Etapa de Publicação
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src/banco
 RUN dotnet publish -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-
-FROM build AS final-sdk
-WORKDIR /app
-COPY --from=publish /app/publish .
-
-ENTRYPOINT "dotnet ef database update
 
 # Etapa Final (Runtime)
 FROM base AS final
@@ -40,4 +31,7 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
+RUN dotnet ef database update
+
 ENTRYPOINT ["dotnet", "banco.dll"]
+
