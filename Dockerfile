@@ -40,5 +40,4 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-ENV PATH="${PATH}:/root/.dotnet/tools"
-ENTRYPOINT dotnet ef database update && dotnet banco.dll
+ENTRYPOINT ["dotnet", "banco.dll"]
